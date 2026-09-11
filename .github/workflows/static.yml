@@ -1,0 +1,114 @@
+# Build and deploy the customized Vial/VIA configurator to GitHub Pages.
+#
+# Production URL:
+# https://xtreemze.github.io/app/
+
+name: Deploy Vial app to GitHub Pages
+
+on:
+  # Deploy whenever main changes.
+  push:
+    branches:
+      - main
+
+  # Rebuild when keyboard definitions are updated externally.
+  repository_dispatch:
+    types:
+      - definition_update
+
+  # Allow manual deployment from the Actions tab.
+  workflow_dispatch:
+
+# Required by GitHub Pages deployment.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment should run at a time.
+# Do not cancel an in-progress production deployment.
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Vial app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      # Keep the bundled VIA keyboard definitions current before building.
+      - name: Refresh keyboard definitions
+        run: bun run refresh-kbs
+
+      # GitHub project Pages normally lives at /<repository>/.
+      #
+      # For xtreemze/app:
+      #   https://xtreemze.github.io/app/
+      #   base = /app/
+      #
+      # This also remains correct if the repository is renamed later.
+      - name: Resolve GitHub Pages base path
+        id: pages-base
+        shell: bash
+        run: |
+          repo="${GITHUB_REPOSITORY#*/}"
+
+          if [[ "$repo" == "${GITHUB_REPOSITORY_OWNER}.github.io" ]]; then
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/$repo/" >> "$GITHUB_OUTPUT"
+          fi
+
+      # vite.config.ts consumes VITE_BASE_PATH.
+      # The application router also derives its base from import.meta.env.BASE_URL.
+      - name: Build Vial app
+        env:
+          VITE_BASE_PATH: ${{ steps.pages-base.outputs.base }}
+        run: bun run build
+
+      # GitHub Pages does not provide arbitrary SPA rewrites.
+      # Serving the generated index as 404.html lets client-side Wouter routes
+      # load correctly when opened directly.
+      - name: Add GitHub Pages SPA fallback
+        shell: bash
+        run: |
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      # Upload ONLY the built application, not the source repository.
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy Vial app
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
