@@ -4,11 +4,15 @@ This repository is a custom VIA/Vial-compatible web configurator fork used to ex
 
 ## Hosted application
 
-The GitHub Pages deployment target is:
+The Vial-compatible configurator is hosted directly by GitHub Pages at:
 
 **https://xtreemze.github.io/app/**
 
-`main` is built and deployed by GitHub Actions. The application is configured to run from the `/app/` repository base path, including client-side routes and PWA assets. The existing Cloudflare deployment remains independent.
+`main` is the authoritative source. GitHub Actions builds the production Vite application, refreshes keyboard definitions, derives the correct Pages base path from the repository name, adds the SPA fallback, and deploys the resulting `dist/` artifact directly to GitHub Pages. No Cloudflare or secondary hosting workflow is used.
+
+For this project repository, GitHub Pages serves the app from `/app/`. Client-side routes and static/PWA assets use the same deployment base. If the repository is ever renamed to `xtreemze.github.io`, the workflow automatically switches to the root `/` Pages base.
+
+GitHub requires the repository Pages publishing source to be enabled once under **Settings → Pages → Build and deployment → Source → GitHub Actions**. After that, pushes to `main`, keyboard-definition dispatches, and manual workflow runs deploy the configurator directly.
 
 ## Fork direction
 
