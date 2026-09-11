@@ -1,8 +1,26 @@
+# xtreemze keyboard configurator
+
+This repository is a custom VIA/Vial-compatible web configurator fork used to expose keyboard capabilities that are not fully represented by the stock VIA application.
+
+## Hosted application
+
+The GitHub Pages deployment target is:
+
+**https://xtreemze.github.io/app/**
+
+`main` is built and deployed by GitHub Actions. The application is configured to run from the `/app/` repository base path, including client-side routes and PWA assets. The existing Cloudflare deployment remains independent.
+
+## Fork direction
+
+In addition to tracking upstream VIA compatibility, this fork is intended to expose richer capabilities from custom firmware without weakening behavior for standard VIA keyboards. Device-specific extensions should be capability-detected and isolated behind typed adapters so unsupported keyboards continue to receive the normal VIA experience.
+
+The current extension direction includes richer RGB Matrix configuration, including explicit profiles for layers, modifier families, combos, and supported per-key lighting rather than relying only on fixed global lighting controls.
+
+---
+
 # [VIA Web Application](https://usevia.app) - Your keyboards best friend
 
 ![android-chrome-192x192](https://user-images.githubusercontent.com/1714072/222621960-ddfb8ee6-a486-4c66-8852-b204ba7c807b.png)
-
-[![Azure Static Web Apps CI/CD](https://github.com/the-via/app/actions/workflows/azure.yml/badge.svg)](https://github.com/the-via/app/actions/workflows/azure.yml)
 
 VIA is a powerful, open-source web-based interface for configuring your [QMK](https://qmk.fm)-powered mechanical keyboard. It allows you to customize your keymaps, create macros, and adjust RGB settings (if it has RGB) on the fly, without needing to recompile your keyboard's firmware. This makes keyboard customization easier and more accessible for everyone.
 
@@ -18,7 +36,7 @@ Please follow our [Specification documentation](https://www.caniusevia.com/docs/
 
 ## Local development setup
 
-Start by cloning [`the-via/keyboards`](github.com/the-via/keyboards) then install dependencies with `npm install` and finally `npm run build`. You should see
+Start by cloning [`the-via/keyboards`](https://github.com/the-via/keyboards) then install dependencies with `npm install` and finally `npm run build`. You should see
 the output folder `dist`. This should be copied or symlinked to our repo's `public/definitions` folder.
 
 ```bash
@@ -38,13 +56,8 @@ You will also see any lint errors in the console.
 
 #### `npm run build`
 
-Builds a static copy of your site to the `build/` folder.
+Builds a static copy of your site to the `dist/` folder.
 Your app is ready to be deployed!
-
-#### `npm run test`
-
-Launches the application test runner.
-Run with the `--watch` flag (`npm test -- --watch`) to run in interactive watch mode.
 
 ---
 
@@ -57,9 +70,3 @@ This project is tested with [BrowserStack](https://www.browserstack.com/).
 You can find it at [https://github.com/cebby2420/via-desktop](https://github.com/cebby2420/via-desktop).
 
 **NOTE: This project has no official affiliation with VIA, and we cannot provide support for it.**
-
-## Facing Issues?
-
-If you encounter any issues or bugs while using the [VIA web application](https://usevia.app), please report them by opening an issue in the [Issues section](https://github.com/the-via/app/issues). This will help us to track down and resolve problems, and improve the VIA experience for everyone.
-
-Before reporting, please make sure to check if an issue has already been reported. Thank you!
