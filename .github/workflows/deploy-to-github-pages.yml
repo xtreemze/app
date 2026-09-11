@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Vial app to GitHub Pages
 
 on:
   push:
@@ -33,9 +33,20 @@ jobs:
       - name: Refresh keyboard definitions
         run: bun run refresh-kbs
 
-      - name: Build for GitHub Pages
+      - name: Resolve GitHub Pages base path
+        id: pages-base
+        shell: bash
+        run: |
+          repo="${GITHUB_REPOSITORY#*/}"
+          if [[ "$repo" == "${GITHUB_REPOSITORY_OWNER}.github.io" ]]; then
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "base=/$repo/" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build Vial app for GitHub Pages
         env:
-          VITE_BASE_PATH: /app/
+          VITE_BASE_PATH: ${{ steps.pages-base.outputs.base }}
         run: bun run build
 
       - name: Add SPA fallback
@@ -58,6 +69,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy Vial app directly to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
